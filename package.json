@@ -10,7 +10,9 @@
   "dependencies": {
     "moment": "^2.24.0",
     "react": "16.8.6",
-    "react-native": "0.60.0"
+    "react-native": "0.60.0",
+    "react-native-button": "^2.4.0",
+    "react-native-modal": "^11.1.0"
   },
   "devDependencies": {
     "@babel/core": "^7.5.4",

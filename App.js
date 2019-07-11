@@ -1,8 +1,11 @@
 import React, { Component } from 'react';
-import { AsyncStorage, ScrollView, TextInput, StyleSheet, Text, View, Image, KeyboardAvoidingView, Button, TouchableOpacity } from 'react-native';
+import { AsyncStorage, ScrollView, TextInput, StyleSheet, Text, View, Image, KeyboardAvoidingView, TouchableOpacity, FlatList } from 'react-native';
 import CalendarPicker from 'react-native-calendar-picker';
 const cio = require('react-native-cheerio');
 import imagePicker from 'react-native-image-picker';
+import Modal from 'react-native-modal';
+import Button from 'react-native-button';
+
 
 const options = {
   noData: true,
@@ -14,10 +17,6 @@ const options = {
   },
 };
 
-
-
-
-
 class App extends Component {
   constructor(props) {
     super(props);
@@ -26,9 +25,9 @@ class App extends Component {
       name: '',
       image: null,
       list: [],
-      prices: {}
-
-
+      data: [],
+      prices: {},
+      showModal: false
     };
     this.getPrices().then(() => {
       AsyncStorage.getItem('name').then(value => {
@@ -59,7 +58,7 @@ class App extends Component {
       coinImam: this.state.list.filter(x => x.id == "coinImam").length,
       coin: this.state.list.filter(x => x.id == "coin").length
     }
-    alert(counts.dollor + " " + counts.euro + " " + counts.coinImam + counts.coin);
+    //alert(counts.dollor + " " + counts.euro + " " + counts.coinImam + counts.coin);
     if (this.state.list == null)
       this.state.list = [];
     for (let i = 0; i < 4; i++) {
@@ -84,13 +83,14 @@ class App extends Component {
       if (this.state.list[i].id === id)
         data.push(this.state.list[i]);
     }
-    for (let i = 0; i < data.length; i++) {
-      alert(data[i].id + " , " + data[i].price + " , " + data[i].name + " , " + data[i].date);
-    }
+    this.setState({ showModal: true, data: data });
+    // for (let i = 0; i < data.length; i++) {
+    //   alert(data[i].id + " , " + data[i].price + " , " + data[i].name + " , " + data[i].date);
+    // }
   }
 
   async getPrices() {
-    await fetch('http://www.tgju.org/').then(response => response.text().then(html => {
+    fetch('http://www.tgju.org/').then(response => response.text().then(html => {
       const $ = cio.load(html);
       var dollor = $("li#l-price_dollar_rl span.info-price").text() + " Rials";
       var euro = $("li#l-price_eur span.info-price").text() + " Rials";
@@ -104,15 +104,6 @@ class App extends Component {
       };
       this.setState({ prices: prices });
     })).catch((error) => alert(error));
-
-    // const response = await fetch('http://www.tgju.org/');
-    // const html = await response.text();
-    // const $ = cio.load(html);
-    // var dollar = $("li#l-price_dollar_rl span.info-price").text() + " Rials";
-    // var euro = $("li#l-price_eur span.info-price").text() + " Rials";
-    // var coin = $("tr[data-market-row=\"sekeb\"]").attr("data-price") + " Rials";
-    // var coinImam = $("li#l-sekee span.info-price").text() + " Rials";
-    // this.setState({ dollar: dollar, euro: euro, coinImam: coinImam, coin: coin });
   };
 
   openImage = () => {
@@ -130,15 +121,40 @@ class App extends Component {
     AsyncStorage.setItem('image', '');
   }
 
+  toggleModal = () => {
+    this.setState({ showModal: !this.state.showModal });
+  }
+
   render() {
     return (
 
       <ScrollView style={styles.container}>
-        <Button onPress={() => {
-          AsyncStorage.clear();
-          alert("async cleard")
-        }} title="Clear AsyncStorage"></Button>
         <KeyboardAvoidingView>
+          <Modal
+            isVisible={this.state.showModal}
+          >
+            <View style={{ margin: '10%', width: 300, height: 450, backgroundColor: "white", alignContent: 'center', alignItems: 'center' }}>
+              <Text>Last 5 entrance{'\n\n'}</Text>
+              <FlatList style={{ width: '80%', height: '90%', alignContent: 'center' }} data={this.state.data}
+                showsVerticalScrollIndicator={false}
+                showsHorizontalScrollIndicator={false}
+                renderItem={({ item }) =>
+                  <View style={{
+                    borderBottomColor: 'grey',
+                    borderBottomWidth: 1,
+                    alignItems: 'center'
+                  }}>
+                    <Text>{item.name}</Text>
+                    <Text>{item.date}</Text>
+                    <Text>{item.price}</Text>
+
+                  </View>
+                }
+              />
+              <Button onPress={this.toggleModal}>Close</Button>
+            </View>
+          </Modal>
+
           <View style={styles.border}>
             <TouchableOpacity style={styles.square} onPress={() => this.showData("dollor")}>
               <Image resizeMode='stretch' style={styles.img} source={require('./images/icDollar.png')} />
@@ -176,6 +192,13 @@ class App extends Component {
 
           <CalendarPicker ></CalendarPicker>
         </KeyboardAvoidingView>
+
+        <Button onPress={() => {
+          AsyncStorage.clear();
+          alert("async cleard")
+        }} style={{ fontSize: 30, color: 'rgb(242, 240, 240)', backgroundColor: "rgb(245, 59, 59)", }}>
+          Clear AsyncStorage</Button>
+
       </ScrollView >
     );
   }
@@ -210,7 +233,7 @@ const styles = StyleSheet.create
       margin: 10,
       borderRadius: 10
     },
-    // main: 
+    // main:
     // {
     //   flex: 1,
     //   borderWidth: 2,
