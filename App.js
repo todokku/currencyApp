@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { AsyncStorage, ScrollView, TextInput, StyleSheet, Text, View, Image, KeyboardAvoidingView, TouchableOpacity, FlatList } from 'react-native';
 import CalendarPicker from 'react-native-calendar-picker';
-const cio = require('react-native-cheerio');
+import 'react-native-cheerio'
 import imagePicker from 'react-native-image-picker';
 import Modal from 'react-native-modal';
 import Button from 'react-native-button';
@@ -17,8 +17,10 @@ const options = {
   },
 };
 
-class App extends Component {
-  constructor(props) {
+class App extends Component 
+{
+  constructor(props) 
+  {
     super(props);
     this.state = {
       text: '',
@@ -29,10 +31,15 @@ class App extends Component {
       prices: {},
       showModal: false
     };
-    this.getPrices().then(() => {
-      AsyncStorage.getItem('name').then(value => {
+
+
+    this.getPrices().then(() => 
+    {
+      AsyncStorage.getItem('name').then(value =>
+      {
         this.setState({ name: value });
-        AsyncStorage.getItem('list').then(value => {
+        AsyncStorage.getItem('list').then(value =>
+        {
           value && this.setState({ list: JSON.parse(value) });
           this.saveData();
         });
@@ -46,19 +53,20 @@ class App extends Component {
 
   }
 
-  saveData = () => {
+  saveData = () => 
+  {
     let strs =
-      ["dollor",
+      ["dollar",
         "euro",
         "coinImam",
-        "coin",];
+        "coin"];
     let counts = {
-      dollor: this.state.list.filter(x => x.id == "dollor").length,
+      dollar: this.state.list.filter(x => x.id == "dollar").length,
       euro: this.state.list.filter(x => x.id == "euro").length,
       coinImam: this.state.list.filter(x => x.id == "coinImam").length,
       coin: this.state.list.filter(x => x.id == "coin").length
     }
-    //alert(counts.dollor + " " + counts.euro + " " + counts.coinImam + counts.coin);
+    //alert(counts.dollar + " " + counts.euro + " " + counts.coinImam + counts.coin);
     if (this.state.list == null)
       this.state.list = [];
     for (let i = 0; i < 4; i++) {
@@ -89,15 +97,18 @@ class App extends Component {
     // }
   }
 
-  async getPrices() {
-    fetch('http://www.tgju.org/').then(response => response.text().then(html => {
-      const $ = cio.load(html);
-      var dollor = $("li#l-price_dollar_rl span.info-price").text() + " Rials";
+  async getPrices() 
+  {
+    fetch('http://www.tgju.org/').then(response => response.text().then(html => 
+    {
+      const cheerio = require('react-native-cheerio');
+      const $ = cheerio.load(html);
+      var dollar = $("li#l-price_dollar_rl span.info-price").text() + " Rials";
       var euro = $("li#l-price_eur span.info-price").text() + " Rials";
-      var coin = $("tr[data-market-row=\"sekeb\"]").attr("data-price") + " Rials";
+      var coin = $("li#l-sekee span.info-price").text() + " Rials";
       var coinImam = $("li#l-sekee span.info-price").text() + " Rials";
       let prices = {
-        dollor: dollor,
+        dollar: dollar,
         euro: euro,
         coinImam: coinImam,
         coin: coin
@@ -106,40 +117,45 @@ class App extends Component {
     })).catch((error) => alert(error));
   };
 
-  openImage = () => {
+  openImage = () =>
+  {
     console.log(this.state.image)
-    imagePicker.launchImageLibrary(options, response => {
-      if (response.uri) {
+    imagePicker.launchImageLibrary(options, response => 
+    {
+      if (response.uri) 
+      {
         this.setState({ image: response.uri });
         AsyncStorage.setItem('image', response.uri);
       }
     });
   }
 
-  deleteImage = () => {
+  deleteImage = () => 
+  {
     this.setState({ image: null });
     AsyncStorage.setItem('image', '');
   }
 
-  toggleModal = () => {
+  toggleModal = () => 
+  {
     this.setState({ showModal: !this.state.showModal });
   }
 
   render() {
     return (
 
-      <ScrollView style={styles.container}>
+      <ScrollView style = {styles.container}>
         <KeyboardAvoidingView>
           <Modal
-            isVisible={this.state.showModal}
+            isVisible = {this.state.showModal}
           >
-            <View style={{ margin: '10%', width: 300, height: 450, backgroundColor: "white", alignContent: 'center', alignItems: 'center' }}>
+            <View style = {{ margin: '10%', width: 300, height: 450, backgroundColor: 'white', alignContent: 'center', alignItems: 'center' }}>
               <Text>Last 5 entrance{'\n\n'}</Text>
-              <FlatList style={{ width: '80%', height: '90%', alignContent: 'center' }} data={this.state.data}
-                showsVerticalScrollIndicator={false}
-                showsHorizontalScrollIndicator={false}
-                renderItem={({ item }) =>
-                  <View style={{
+              <FlatList style = {{ width: '80%', height: '90%', alignContent: 'center' }} data = {this.state.data}
+                showsVerticalScrollIndicator = {false}
+                showsHorizontalScrollIndicator = {false}
+                renderItem = {({ item }) =>
+                  <View style = {{
                     borderBottomColor: 'grey',
                     borderBottomWidth: 1,
                     alignItems: 'center'
@@ -147,47 +163,46 @@ class App extends Component {
                     <Text>{item.name}</Text>
                     <Text>{item.date}</Text>
                     <Text>{item.price}</Text>
-
                   </View>
                 }
               />
-              <Button onPress={this.toggleModal}>Close</Button>
+              <Button onPress = {this.toggleModal}>Close</Button>
             </View>
           </Modal>
 
-          <View style={styles.border}>
-            <TouchableOpacity style={styles.square} onPress={() => this.showData("dollor")}>
-              <Image resizeMode='stretch' style={styles.img} source={require('./images/icDollar.png')} />
-              <Text style={styles.price}>{this.state.prices.dollor}</Text>
+          <View style = {styles.border}>
+            <TouchableOpacity style = {styles.square} onPress = {() => this.showData("dollar")}>
+              <Image resizeMode='stretch' style = {styles.img} source = {require('./images/icDollar.png')} />
+              <Text style = {styles.price}>{this.state.prices.dollar}</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={styles.square} onPress={() => this.showData("euro")}>
-              <Image resizeMode='stretch' style={styles.img} source={require('./images/icEuro.png')} />
-              <Text style={styles.price}>{this.state.prices.euro}</Text>
-            </TouchableOpacity>
-          </View>
-
-
-          <View style={styles.border} >
-            <TouchableOpacity style={styles.square} onPress={() => this.showData("coinImam")}>
-              <Image resizeMode='stretch' style={styles.img} source={require('./images/icCoinImam.png')} />
-              <Text style={styles.price}>{this.state.prices.coinImam}</Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.square} onPress={() => this.showData("coin")}>
-              <Image resizeMode='stretch' style={styles.img} source={require('./images/icCoin.png')} />
-              <Text style={styles.price}>{this.state.prices.coin}</Text>
+            <TouchableOpacity style = {styles.square} onPress = {() => this.showData("euro")}>
+              <Image resizeMode = 'stretch' style = {styles.img} source = {require('./images/icEuro.png')} />
+              <Text style = {styles.price}>{this.state.prices.euro}</Text>
             </TouchableOpacity>
           </View>
 
-          <View style={styles.UserInfoBox}>
-            <TextInput placeholder="Enter Your Name"
-              onChangeText={(value) => AsyncStorage.setItem('name', value)} defaultValue={this.state.name} />
-            <TouchableOpacity onPress={this.openImage} onLongPress={this.deleteImage}>
-              {this.state.image ? <Image resizeMode='stretch' style={styles.userImage} source={{ uri: this.state.image }} /> : <Image resizeMode='stretch' style={styles.userImage} source={require('./images/icUser.png')} />}
+
+          <View style = {styles.border} >
+            <TouchableOpacity style = {styles.square} onPress={() => this.showData("coinImam")}>
+              <Image resizeMode = 'stretch' style = {styles.img} source = {require('./images/icCoinImam.png')} />
+              <Text style = {styles.price}>{this.state.prices.coinImam}</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style = {styles.square} onPress = {() => this.showData("coin")}>
+              <Image resizeMode = 'stretch' style = {styles.img} source = {require('./images/icCoin.png')} />
+              <Text style = {styles.price}>{this.state.prices.coin}</Text>
             </TouchableOpacity>
           </View>
-          <View style={styles.DailyNotes}>
-            <TextInput placeholder="Daily Notes..." multiline={true}
-              onChangeText={(value) => AsyncStorage.setItem('text', value)} defaultValue={this.state.text} />
+
+          <View style = {styles.UserInfoBox}>
+            <TextInput placeholder = "Enter Your Name"
+              onChangeText = {(value) => AsyncStorage.setItem('name', value)} defaultValue = {this.state.name} />
+            <TouchableOpacity onPress = {this.openImage} onLongPress = {this.deleteImage}>
+              {this.state.image ? <Image resizeMode = 'stretch' style = {styles.userImage} source = {{ uri: this.state.image }} /> : <Image resizeMode = 'stretch' style = {styles.userImage} source = {require('./images/icUser.png')} />}
+            </TouchableOpacity>
+          </View>
+          <View style = {styles.DailyNotes}>
+            <TextInput placeholder = "Daily Notes..." multiline={true}
+              onChangeText = {(value) => AsyncStorage.setItem('text', value)} defaultValue = {this.state.text} />
           </View>
 
           <CalendarPicker ></CalendarPicker>
@@ -196,7 +211,7 @@ class App extends Component {
         <Button onPress={() => {
           AsyncStorage.clear();
           alert("async cleard")
-        }} style={{ fontSize: 30, color: 'rgb(242, 240, 240)', backgroundColor: "rgb(245, 59, 59)", }}>
+        }} style = {{ fontSize: 30, color: 'rgb(242, 240, 240)', backgroundColor: "rgb(245, 59, 59)", }}>
           Clear AsyncStorage</Button>
 
       </ScrollView >
@@ -226,23 +241,13 @@ const styles = StyleSheet.create
     square:
     {
       height: 180,
-      width: "45%",
+      width: '45%',
       borderWidth: 2,
-      borderColor: 'blue',
+      borderColor: 'black',
       alignItems: 'center',
       margin: 10,
       borderRadius: 10
     },
-    // main:
-    // {
-    //   flex: 1,
-    //   borderWidth: 2,
-    //   borderColor: 'blue',
-    //   height: 700,
-    //   margin: 10,
-    //   alignItems: 'center',
-    //   borderRadius: 10
-    // },
     vertical:
     {
       flexDirection: 'row',
@@ -250,7 +255,7 @@ const styles = StyleSheet.create
       borderRadius: 10,
       margin: 10,
       width: 370,
-      borderColor: 'blue'
+      borderColor: 'black'
     },
     secondText:
     {
@@ -263,27 +268,27 @@ const styles = StyleSheet.create
     },
     userImage:
     {
-      height: "100%",
-      width: "100%",
-      marginLeft: "47.8%",
+      height: '100%',
+      width: '80%',
+      marginLeft: '50%',
       borderRadius: 10,
 
     },
     UserInfoBox: {
-      flexDirection: "row",
-      width: "95%",
-      height: 150,
+      flexDirection: 'row',
+      width: '95%',
+      height: 140,
       borderWidth: 2,
       borderRadius: 10,
-      borderColor: "blue",
+      borderColor: 'black',
       margin: 10
     },
     DailyNotes: {
-      width: "95%",
+      width: '95%',
       height: 150,
       borderWidth: 2,
       borderRadius: 10,
-      borderColor: "blue",
+      borderColor: 'black',
       margin: 10
     }
   });
